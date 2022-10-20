@@ -1,6 +1,7 @@
 # voc2coco
 
 This is script for converting VOC format XMLs to COCO format json(ex. coco_eval.json).
+Here I modify/add some codes which be suitable with custom xml file annotations
 
 ### Why we need to convert VOC xmls to COCO format json ?
 
@@ -35,18 +36,11 @@ grep -ERoh '<name>(.*)</name>' /Path_to_folder | sort | uniq | sed 's/<name>//g'
 
 ### 2. Run script
 
-##### 2.1 Usage 1(Use ids list)
-
-```bash
-$ python voc2coco.py \
-    --ann_dir /path/to/annotation/dir \
-    --ann_ids /path/to/annotations/ids/list.txt \
-    --labels /path/to/labels.txt \
-    --output /path/to/output.json \
-    <option> --ext xml
+##### 2.1 Create the file patch.txt contain the annotations file patch inside the image folder
+Usage: python Get_FilePath.py [dataset folder] [extension file type]
 ```
 
-##### 2.2 Usage 2(Use annotation paths list)
+##### 2.2 Usage (Use annotation paths list)
 
 **Sample paths.txt**
 
