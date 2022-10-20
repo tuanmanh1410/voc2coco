@@ -36,13 +36,10 @@ def get_annpaths(ann_dir_path: str = None,
 def get_image_info(annotation_root, extract_num_from_imgid=True):
     path = annotation_root.findtext('path')
     if path is None:
-        filename = annotation_root.findtext('file_name')
+        filename = annotation_root.findtext('filename')
     else:
         filename = os.path.basename(path)
-
     img_name = os.path.basename(filename)
-    # Generate image id for each image from 0 to N-1
-    
     img_id = os.path.splitext(img_name)[0]
     if extract_num_from_imgid and isinstance(img_id, str):
         img_id = int(re.findall(r'\d+', img_id)[0])
@@ -61,14 +58,14 @@ def get_image_info(annotation_root, extract_num_from_imgid=True):
 
 
 def get_coco_annotation_from_obj(obj, label2id):
-    label = obj.findtext('state')
+    label = obj.findtext('name')
     assert label in label2id, f"Error: {label} is not in label2id !"
     category_id = label2id[label]
-    bndbox = obj
-    xmin = int(float(bndbox.findtext('x_min')))
-    ymin = int(float(bndbox.findtext('y_min')))
-    xmax = int(float(bndbox.findtext('x_max')))
-    ymax = int(float(bndbox.findtext('y_max')))
+    bndbox = obj.find('bndbox')
+    xmin = int(float(bndbox.findtext('xmin'))) - 1
+    ymin = int(float(bndbox.findtext('ymin'))) - 1
+    xmax = int(float(bndbox.findtext('xmax')))
+    ymax = int(float(bndbox.findtext('ymax')))
     assert xmax > xmin and ymax > ymin, f"Box size error !: (xmin, ymin, xmax, ymax): {xmin, ymin, xmax, ymax}"
     o_width = xmax - xmin
     o_height = ymax - ymin
@@ -95,20 +92,17 @@ def convert_xmls_to_cocojson(annotation_paths: List[str],
     }
     bnd_id = 1  # START_BOUNDING_BOX_ID, TODO input as args ?
     print('Start converting !')
-    count = -1
     for a_path in tqdm(annotation_paths):
-        count += 1
         # Read annotation xml
         ann_tree = ET.parse(a_path)
         ann_root = ann_tree.getroot()
 
         img_info = get_image_info(annotation_root=ann_root,
                                   extract_num_from_imgid=extract_num_from_imgid)
-        img_info['id'] = count
         img_id = img_info['id']
         output_json_dict['images'].append(img_info)
 
-        for obj in ann_root.findall('bndbox'):
+        for obj in ann_root.findall('object'):
             ann = get_coco_annotation_from_obj(obj=obj, label2id=label2id)
             ann.update({'image_id': img_id, 'id': bnd_id})
             output_json_dict['annotations'].append(ann)
