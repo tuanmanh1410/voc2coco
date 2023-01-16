@@ -62,7 +62,10 @@ def get_image_info(annotation_root, extract_num_from_imgid=True):
 
 def get_coco_annotation_from_obj(obj, label2id):
     label = obj.findtext('state')
-    assert label in label2id, f"Error: {label} is not in label2id !"
+    if label not in label2id:
+        # Ignore label not in label2id
+        return None
+    #assert label in label2id, f"Error: {label} is not in label2id !"
     category_id = label2id[label]
     bndbox = obj
     xmin = int(float(bndbox.findtext('x_min')))
@@ -110,6 +113,8 @@ def convert_xmls_to_cocojson(annotation_paths: List[str],
 
         for obj in ann_root.findall('bndbox'):
             ann = get_coco_annotation_from_obj(obj=obj, label2id=label2id)
+            if ann is None:
+                continue
             ann.update({'image_id': img_id, 'id': bnd_id})
             output_json_dict['annotations'].append(ann)
             bnd_id = bnd_id + 1
@@ -139,7 +144,7 @@ def main():
     parser.add_argument('--extract_num_from_imgid', action="store_true",
                         help='Extract image number from the image filename')
     args = parser.parse_args()
-    label2id = get_label2id(labels_path=args.labels)
+    label2id = get_label2id(labels_path=args.labels) #Return a dictionary of labels and their corresponding ids
     ann_paths = get_annpaths(
         ann_dir_path=args.ann_dir,
         ann_ids_path=args.ann_ids,
