@@ -68,10 +68,10 @@ def get_coco_annotation_from_obj(obj, label2id):
     #assert label in label2id, f"Error: {label} is not in label2id !"
     category_id = label2id[label]
     bndbox = obj
-    xmin = int(float(bndbox.findtext('x_min')))
-    ymin = int(float(bndbox.findtext('y_min')))
-    xmax = int(float(bndbox.findtext('x_max')))
-    ymax = int(float(bndbox.findtext('y_max')))
+    xmin = float(bndbox.findtext('x_min'))
+    ymin = float(bndbox.findtext('y_min'))
+    xmax = float(bndbox.findtext('x_max'))
+    ymax = float(bndbox.findtext('y_max'))
     assert xmax > xmin and ymax > ymin, f"Box size error !: (xmin, ymin, xmax, ymax): {xmin, ymin, xmax, ymax}"
     o_width = xmax - xmin
     o_height = ymax - ymin
