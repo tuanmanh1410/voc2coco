@@ -1,10 +1,12 @@
 # Get the file *xml path in folder and store in txt file
+# Usage: python Get_FilePath.py path file_extension file_name
 import os
 import glob
 import sys
 
 # Get the file *xml path in folder and store in txt file
 def get_file_path(path, file_type, file_name):
+    # Write the file path in file_name
     with open(file_name, 'w') as f:
         for root, dirs, files in os.walk(path):
             for file in files:
